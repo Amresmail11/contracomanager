@@ -2,7 +2,7 @@ services:
   - type: web
     name: contraco-manager
     env: docker
-    region: frankfurt
+    region: singapore
     plan: starter
     healthCheckPath: /actuator/health
     envVars:
@@ -17,11 +17,11 @@ services:
       - key: JWT_EXPIRATION
         value: "86400000"
       - key: SPRING_DATASOURCE_URL
-        value: "jdbc:postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com:5432/contraco_db"
+        value: "jdbc:postgresql://dpg-cub76m23esus73eqvj2g-a.singapore-postgres.render.com:5432/contraco_db_22vt"
       - key: SPRING_DATASOURCE_USERNAME
-        value: "contraco_db_user"
+        value: "contraco_db_22vt_user"
       - key: SPRING_DATASOURCE_PASSWORD
-        value: "W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O"
+        value: "9PamPMBPoBaJKmBNDEnpnRqfvqAmZlBi"
       - key: CORS_ALLOWED_ORIGINS
         value: "*"
       - key: CORS_ALLOWED_METHODS
@@ -35,5 +35,5 @@ services:
 
 databases:
   - name: contraco-db
-    region: frankfurt
+    region: singapore
     plan: starter 

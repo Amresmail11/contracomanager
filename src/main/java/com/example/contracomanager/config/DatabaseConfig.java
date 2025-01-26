@@ -22,13 +22,13 @@ import java.util.Properties;
 @Slf4j
 public class DatabaseConfig {
     
-    @Value("${SPRING_DATASOURCE_URL:postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com/contraco_db}")
+    @Value("${SPRING_DATASOURCE_URL:postgresql://dpg-cub76m23esus73eqvj2g-a.singapore-postgres.render.com/contraco_db_22vt}")
     private String url;
     
-    @Value("${SPRING_DATASOURCE_USERNAME:contraco_db_user}")
+    @Value("${SPRING_DATASOURCE_USERNAME:contraco_db_22vt_user}")
     private String username;
     
-    @Value("${SPRING_DATASOURCE_PASSWORD:W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O}")
+    @Value("${SPRING_DATASOURCE_PASSWORD:9PamPMBPoBaJKmBNDEnpnRqfvqAmZlBi}")
     private String password;
     
     @Bean

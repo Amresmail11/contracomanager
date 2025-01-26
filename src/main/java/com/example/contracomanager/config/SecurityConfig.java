@@ -31,8 +31,33 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
+                // Auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                
+                // Staff/Admin endpoints
+                .requestMatchers("/api/staff/**").hasRole("ADMIN")
+                
+                // Project endpoints
+                .requestMatchers("/api/projects/my-projects").authenticated()
+                
+                // Group endpoints
+                .requestMatchers("/api/groups/**").authenticated()
+                
+                // RFI endpoints
+                .requestMatchers("/api/rfis/**").authenticated()
+                
+                // Drawing endpoints
+                .requestMatchers("/api/drawings/**").authenticated()
+                
+                // User endpoints
+                .requestMatchers("/api/users/same-project/**").authenticated()
+                .requestMatchers("/api/users/me").authenticated()
+                
+                // Static resources
+                .requestMatchers("/static/**").permitAll()
+                
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

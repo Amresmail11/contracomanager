@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${JDBC_DATABASE_URL:jdbc:postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com:5432/contraco_db}
-    username: ${JDBC_DATABASE_USERNAME:contraco_db_user}
-    password: ${JDBC_DATABASE_PASSWORD:W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O}
+    url: ${DATABASE_URL:jdbc:postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com:5432/contraco_db}
+    username: ${DATABASE_USER:contraco_db_user}
+    password: ${DATABASE_PASSWORD:W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

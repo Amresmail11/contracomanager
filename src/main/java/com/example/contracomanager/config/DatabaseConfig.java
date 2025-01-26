@@ -22,13 +22,13 @@ import java.util.Properties;
 @Slf4j
 public class DatabaseConfig {
     
-    @Value("${spring.datasource.url:postgresql://localhost:5432/workwave}")
+    @Value("${spring.datasource.url:postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com/contraco_db}")
     private String url;
     
-    @Value("${spring.datasource.username:postgres}")
+    @Value("${spring.datasource.username:contraco_db_user}")
     private String username;
     
-    @Value("${spring.datasource.password:admin}")
+    @Value("${spring.datasource.password:W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O}")
     private String password;
     
     @Bean
@@ -36,9 +36,10 @@ public class DatabaseConfig {
     public DataSource dataSource() {
         log.info("Configuring DataSource with URL: {}", url);
         try {
+            String jdbcUrl = url.startsWith("jdbc:") ? url : "jdbc:" + url;
             return DataSourceBuilder.create()
                 .driverClassName("org.postgresql.Driver")
-                .url("jdbc:" + url)
+                .url(jdbcUrl)
                 .username(username)
                 .password(password)
                 .build();

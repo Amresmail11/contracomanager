@@ -12,6 +12,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: false
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_SIZE:10MB}
+      max-request-size: ${MAX_REQUEST_SIZE:10MB}
 
 server:
   port: ${SERVER_PORT:9090}
@@ -20,7 +24,7 @@ server:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration: 86400000 # 24 hours
+  expiration: ${JWT_EXPIRATION:86400000}
 
 management:
   endpoints:
@@ -29,4 +33,9 @@ management:
         include: health
   endpoint:
     health:
-      show-details: never 
+      show-details: never
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:*} 

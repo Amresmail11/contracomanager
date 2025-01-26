@@ -6,7 +6,7 @@ services:
     plan: starter
     healthCheckPath: /actuator/health
     envVars:
-      - key: SPRING_PROFILE
+      - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: SERVER_PORT
         value: 9090

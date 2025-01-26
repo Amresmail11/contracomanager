@@ -12,6 +12,4 @@ RUN ./mvnw package -DskipTests
 
 EXPOSE 9090
 
-ENV SPRING_PROFILES_ACTIVE=prod
-
-CMD ["java", "-jar", "target/ContracoManager-0.0.1-SNAPSHOT.jar"] 
+CMD ["java", "-jar", "-Dspring.profiles.active=prod", "target/ContracoManager-0.0.1-SNAPSHOT.jar"] 

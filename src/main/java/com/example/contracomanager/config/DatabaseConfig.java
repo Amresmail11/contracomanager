@@ -3,6 +3,7 @@ package com.example.contracomanager.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -21,26 +22,26 @@ import java.util.Properties;
 @Slf4j
 public class DatabaseConfig {
     
-    @Value("${SPRING_DATASOURCE_URL}")
+    @Value("${spring.datasource.url:jdbc:postgresql://localhost:5432/workwave}")
     private String url;
     
-    @Value("${SPRING_DATASOURCE_USERNAME}")
+    @Value("${spring.datasource.username:postgres}")
     private String username;
     
-    @Value("${SPRING_DATASOURCE_PASSWORD}")
+    @Value("${spring.datasource.password:admin}")
     private String password;
     
     @Bean
+    @Primary
     public DataSource dataSource() {
         log.info("Configuring DataSource with URL: {}", url);
         try {
-            return DataSourceBuilder
-                .create()
-                .url(url)
-                .username(username)
-                .password(password)
-                .driverClassName("org.postgresql.Driver")
-                .build();
+            DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
+            dataSourceBuilder.driverClassName("org.postgresql.Driver");
+            dataSourceBuilder.url(url);
+            dataSourceBuilder.username(username);
+            dataSourceBuilder.password(password);
+            return dataSourceBuilder.build();
         } catch (Exception e) {
             log.error("Failed to create DataSource: {}", e.getMessage(), e);
             throw e;
@@ -48,6 +49,7 @@ public class DatabaseConfig {
     }
 
     @Bean
+    @Primary
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         log.info("Configuring EntityManagerFactory");
         try {
@@ -76,6 +78,7 @@ public class DatabaseConfig {
     }
 
     @Bean
+    @Primary
     public PlatformTransactionManager transactionManager() {
         log.info("Configuring TransactionManager");
         try {

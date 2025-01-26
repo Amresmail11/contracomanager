@@ -22,7 +22,7 @@ import java.util.Properties;
 @Slf4j
 public class DatabaseConfig {
     
-    @Value("${spring.datasource.url:jdbc:postgresql://localhost:5432/workwave}")
+    @Value("${spring.datasource.url:postgresql://localhost:5432/workwave}")
     private String url;
     
     @Value("${spring.datasource.username:postgres}")
@@ -36,12 +36,12 @@ public class DatabaseConfig {
     public DataSource dataSource() {
         log.info("Configuring DataSource with URL: {}", url);
         try {
-            DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
-            dataSourceBuilder.driverClassName("org.postgresql.Driver");
-            dataSourceBuilder.url(url);
-            dataSourceBuilder.username(username);
-            dataSourceBuilder.password(password);
-            return dataSourceBuilder.build();
+            return DataSourceBuilder.create()
+                .driverClassName("org.postgresql.Driver")
+                .url("jdbc:" + url)
+                .username(username)
+                .password(password)
+                .build();
         } catch (Exception e) {
             log.error("Failed to create DataSource: {}", e.getMessage(), e);
             throw e;
@@ -50,11 +50,11 @@ public class DatabaseConfig {
 
     @Bean
     @Primary
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         log.info("Configuring EntityManagerFactory");
         try {
             LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-            em.setDataSource(dataSource());
+            em.setDataSource(dataSource);
             em.setPackagesToScan("com.example.contracomanager.model");
             
             HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -79,11 +79,11 @@ public class DatabaseConfig {
 
     @Bean
     @Primary
-    public PlatformTransactionManager transactionManager() {
+    public PlatformTransactionManager transactionManager(LocalContainerEntityManagerFactoryBean entityManagerFactory) {
         log.info("Configuring TransactionManager");
         try {
             JpaTransactionManager transactionManager = new JpaTransactionManager();
-            transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
+            transactionManager.setEntityManagerFactory(entityManagerFactory.getObject());
             return transactionManager;
         } catch (Exception e) {
             log.error("Failed to create TransactionManager: {}", e.getMessage(), e);

@@ -12,4 +12,5 @@ RUN ./mvnw package -DskipTests
 
 EXPOSE 9090
 
-CMD ["java", "-jar", "-Dspring.profiles.active=prod", "target/ContracoManager-0.0.1-SNAPSHOT.jar"] 
+ENV PORT=9090
+CMD ["sh", "-c", "java -jar -Dspring.profiles.active=prod -Dserver.port=$PORT target/ContracoManager-0.0.1-SNAPSHOT.jar"] 

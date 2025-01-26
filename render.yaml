@@ -8,8 +8,8 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      - key: SERVER_PORT
-        value: 9090
+      - key: PORT
+        value: "9090"
       - key: JAVA_OPTS
         value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75"
       - key: JWT_SECRET
@@ -17,13 +17,11 @@ services:
       - key: JWT_EXPIRATION
         value: "86400000"
       - key: DATABASE_URL
-        value: "jdbc:postgresql://dpg-cub3nkl6l47c739ufbp0-a:5432/contraco_db"
+        value: "postgresql://contraco_db_user:W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O@dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com/contraco_db"
       - key: DATABASE_USER
         value: "contraco_db_user"
       - key: DATABASE_PASSWORD
-        fromDatabase:
-          name: contraco-db
-          property: password
+        value: "W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O"
       - key: CORS_ALLOWED_ORIGINS
         value: "*"
       - key: CORS_ALLOWED_METHODS

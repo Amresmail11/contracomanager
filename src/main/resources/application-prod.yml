@@ -13,7 +13,7 @@ spring:
       max-request-size: ${MAX_REQUEST_SIZE:10MB}
 
 server:
-  port: ${PORT:9090}
+  port: ${PORT:10000}
   error:
     include-message: always
 

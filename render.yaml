@@ -16,12 +16,6 @@ services:
         sync: false
       - key: JWT_EXPIRATION
         value: "86400000"
-      - key: DATABASE_URL
-        value: "postgresql://contraco_db_user:W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O@dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com/contraco_db"
-      - key: DATABASE_USER
-        value: "contraco_db_user"
-      - key: DATABASE_PASSWORD
-        value: "W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O"
       - key: CORS_ALLOWED_ORIGINS
         value: "*"
       - key: CORS_ALLOWED_METHODS

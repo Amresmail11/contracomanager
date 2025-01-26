@@ -8,8 +8,12 @@ import com.example.contracomanager.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationService authenticationService;
+    private final Environment env;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
@@ -55,5 +60,20 @@ public class AuthController {
             @RequestHeader("Authorization") String token
     ) {
         return ResponseEntity.ok(authenticationService.refreshToken(token));
+    }
+
+    @GetMapping("/config-check")
+    public ResponseEntity<?> checkConfig() {
+        Map<String, String> config = new HashMap<>();
+        config.put("database", env.getProperty("spring.datasource.url") != null ? "configured" : "missing");
+        config.put("jwt", env.getProperty("jwt.secret") != null ? "configured" : "missing");
+        config.put("cors", env.getProperty("cors.allowed-origins") != null ? "configured" : "missing");
+        config.put("profile", env.getProperty("spring.profiles.active"));
+        
+        return ResponseEntity.ok(Map.of(
+            "status", "success",
+            "message", "Configuration check",
+            "config", config
+        ));
     }
 } 

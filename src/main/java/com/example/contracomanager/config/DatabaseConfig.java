@@ -22,13 +22,13 @@ import java.util.Properties;
 @Slf4j
 public class DatabaseConfig {
     
-    @Value("${spring.datasource.url:postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com/contraco_db}")
+    @Value("${SPRING_DATASOURCE_URL:postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com/contraco_db}")
     private String url;
     
-    @Value("${spring.datasource.username:contraco_db_user}")
+    @Value("${SPRING_DATASOURCE_USERNAME:contraco_db_user}")
     private String username;
     
-    @Value("${spring.datasource.password:W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O}")
+    @Value("${SPRING_DATASOURCE_PASSWORD:W2DFBO0Iy17aK4qLHb5ML2f0GAEweT3O}")
     private String password;
     
     @Bean
@@ -36,7 +36,15 @@ public class DatabaseConfig {
     public DataSource dataSource() {
         log.info("Configuring DataSource with URL: {}", url);
         try {
+            // Ensure URL has jdbc: prefix and proper format
             String jdbcUrl = url.startsWith("jdbc:") ? url : "jdbc:" + url;
+            if (!jdbcUrl.contains("?")) {
+                jdbcUrl += "?sslmode=require";
+            } else if (!jdbcUrl.contains("sslmode=")) {
+                jdbcUrl += "&sslmode=require";
+            }
+            
+            log.info("Final JDBC URL: {}", jdbcUrl);
             return DataSourceBuilder.create()
                 .driverClassName("org.postgresql.Driver")
                 .url(jdbcUrl)
@@ -69,6 +77,7 @@ public class DatabaseConfig {
             properties.setProperty("hibernate.show_sql", "true");
             properties.setProperty("hibernate.format_sql", "true");
             properties.setProperty("hibernate.temp.use_jdbc_metadata_defaults", "false");
+            properties.setProperty("hibernate.physical_naming_strategy", "org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl");
             em.setJpaProperties(properties);
             
             return em;

@@ -17,7 +17,7 @@ services:
       - key: JWT_EXPIRATION
         value: "86400000"
       - key: SPRING_DATASOURCE_URL
-        value: "postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com:5432/contraco_db"
+        value: "jdbc:postgresql://dpg-cub3nkl6l47c739ufbp0-a.frankfurt-postgres.render.com:5432/contraco_db"
       - key: SPRING_DATASOURCE_USERNAME
         value: "contraco_db_user"
       - key: SPRING_DATASOURCE_PASSWORD

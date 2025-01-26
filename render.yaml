@@ -6,7 +6,7 @@ services:
     plan: starter
     healthCheckPath: /actuator/health
     envVars:
-      - key: SPRING_PROFILES_ACTIVE
+      - key: SPRING_PROFILE
         value: prod
       - key: SERVER_PORT
         value: 9090
@@ -14,15 +14,15 @@ services:
         value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75"
       - key: JWT_SECRET
         sync: false
-      - key: SPRING_DATASOURCE_URL
+      - key: DATABASE_URL
         fromDatabase:
           name: contraco-db
           property: connectionString
-      - key: SPRING_DATASOURCE_USERNAME
+      - key: DATABASE_USER
         fromDatabase:
           name: contraco-db
           property: user
-      - key: SPRING_DATASOURCE_PASSWORD
+      - key: DATABASE_PASSWORD
         fromDatabase:
           name: contraco-db
           property: password

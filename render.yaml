@@ -17,13 +17,9 @@ services:
       - key: JWT_EXPIRATION
         value: "86400000"
       - key: DATABASE_URL
-        fromDatabase:
-          name: contraco-db
-          property: connectionString
+        value: "jdbc:postgresql://dpg-cub3nkl6l47c739ufbp0-a:5432/contraco_db"
       - key: DATABASE_USER
-        fromDatabase:
-          name: contraco-db
-          property: user
+        value: "contraco_db_user"
       - key: DATABASE_PASSWORD
         fromDatabase:
           name: contraco-db

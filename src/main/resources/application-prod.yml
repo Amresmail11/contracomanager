@@ -1,13 +1,6 @@
 spring:
   jpa:
     open-in-view: false
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: false
   servlet:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:10MB}
@@ -17,6 +10,14 @@ server:
   port: ${PORT:9090}
   error:
     include-message: always
+
+logging:
+  level:
+    org.springframework: INFO
+    org.hibernate: INFO
+    com.example.contracomanager: DEBUG
+    org.springframework.orm.jpa: DEBUG
+    org.springframework.transaction: DEBUG
 
 jwt:
   secret: ${JWT_SECRET}

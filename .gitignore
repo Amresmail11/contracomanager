@@ -35,3 +35,6 @@ build/
 ### Application Specific ###
 application-local.yml
 *.log
+rfi-attachments/
+uploads/
+service-account.json

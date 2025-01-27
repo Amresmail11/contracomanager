@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.web.multipart.MultipartFile;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,9 +48,10 @@ public class RfiService {
     private final UserProjectRepository userProjectRepository;
     private final GroupProjectUserRepository groupProjectUserRepository;
     private final RfiGroupAssignmentRepository rfiGroupAssignmentRepository;
+    private final GoogleDriveService googleDriveService;
 
     @Transactional
-    public RfiResponse createRfi(CreateRfiRequest request, User creator) {
+    public RfiResponse createRfi(CreateRfiRequest request, List<MultipartFile> files, User creator) {
         // Validate project access
         if (!projectService.hasAccess(request.getProjectCode(), creator.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
@@ -104,6 +107,21 @@ public class RfiService {
         // Save RFI
         Rfi savedRfi = rfiRepository.save(rfi);
         log.info("Created RFI with ID: {}", savedRfi.getId());
+
+        // Handle file uploads
+        if (files != null && !files.isEmpty()) {
+            try {
+                String folderId = googleDriveService.createFolder("rfi-" + savedRfi.getId());
+                for (MultipartFile file : files) {
+                    googleDriveService.uploadFile(file, folderId);
+                }
+                log.info("Uploaded {} files to Google Drive for RFI {}", files.size(), savedRfi.getId());
+            } catch (Exception e) {
+                log.error("Error uploading files to Google Drive: ", e);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                    "Error uploading files: " + e.getMessage());
+            }
+        }
 
         // Create individual assignments if assigned to group
         if (assignedGroup != null) {

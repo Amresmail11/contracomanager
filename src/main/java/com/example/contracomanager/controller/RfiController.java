@@ -40,16 +40,17 @@ public class RfiController {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
 
-    @PostMapping("/api/rfis")
+    @PostMapping(value = "/api/rfis", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createRfi(
-            @Valid @RequestBody CreateRfiByNameRequest request,
+            @RequestPart("data") @Valid CreateRfiByNameRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @AuthenticationPrincipal SecurityUser securityUser
     ) {
         try {
             log.info("Creating RFI for project: {}, title: {}", 
                 request.getProjectCode(), request.getTitle());
             
-            return handleRfiCreation(request, securityUser);
+            return handleRfiCreation(request, files, securityUser);
         } catch (Exception e) {
             log.error("Error creating RFI: ", e);
             return ResponseEntity.internalServerError()
@@ -62,6 +63,7 @@ public class RfiController {
 
     private ResponseEntity<?> handleRfiCreation(
             CreateRfiByNameRequest request,
+            List<MultipartFile> files,
             SecurityUser securityUser
     ) {
         // Validate that either email or group name is provided
@@ -88,7 +90,7 @@ public class RfiController {
             serviceRequest.setAssignedToEmail(request.getAssignedToEmail());
             serviceRequest.setAssignedGroupName(request.getAssignedGroupName());
 
-            RfiResponse rfiResponse = rfiService.createRfi(serviceRequest, securityUser.getUser());
+            RfiResponse rfiResponse = rfiService.createRfi(serviceRequest, files, securityUser.getUser());
             return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "RFI created successfully",

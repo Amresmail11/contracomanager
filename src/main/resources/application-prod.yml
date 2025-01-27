@@ -1,33 +1,45 @@
 spring:
+  datasource:
+    url: ${JDBC_DATABASE_URL}
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    show-sql: false
+    show-sql: true
   servlet:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:10MB}
       max-request-size: ${MAX_REQUEST_SIZE:10MB}
 
 server:
-  port: ${PORT:10000}
+  port: ${PORT:8080}
   error:
     include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
 
 logging:
   level:
-    org.springframework: INFO
-    org.hibernate: INFO
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
     com.example.contracomanager: DEBUG
-    org.springframework.orm.jpa: DEBUG
-    org.springframework.transaction: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:86400000}
+  expiration: 86400000 # 24 hours in milliseconds
 
 management:
   endpoints:
@@ -41,4 +53,11 @@ management:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
   allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
-  allowed-headers: ${CORS_ALLOWED_HEADERS:*} 
+  allowed-headers: ${CORS_ALLOWED_HEADERS:*}
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:/app/uploads}
+
+encryption:
+  key: ${ENCRYPTION_KEY}
+  salt: ${ENCRYPTION_SALT} 

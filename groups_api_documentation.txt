@@ -1,0 +1,320 @@
+# Groups API Documentation
+
+## General Notes
+1. All endpoints require authentication via JWT token in the Authorization header
+2. All timestamps are in ISO-8601 format with timezone (e.g., "2024-12-31T23:59:59Z")
+3. All IDs are UUIDs in string format
+4. Groups are project-specific and can contain multiple members
+
+## Create Group
+Create a new group within a project.
+
+Endpoint: POST /api/groups
+Content-Type: application/json
+Authorization: Bearer {token}
+
+Request Body:
+```json
+{
+    "name": "Structural Team A",
+    "projectCode": "PROJ-123",
+    "memberUsernames": [
+        "john_doe",
+        "jane_smith",
+        "bob_builder"
+    ]
+}
+```
+
+Response (Success - 200 OK):
+```json
+{
+    "message": "Group created successfully"
+}
+```
+
+## Update Group Members
+Update the members of an existing group.
+
+Endpoint: PUT /api/groups/{groupId}/members
+Content-Type: application/json
+Authorization: Bearer {token}
+
+Request Body:
+```json
+{
+    "memberIds": [
+        "123e4567-e89b-12d3-a456-426614174000",
+        "789e4567-e89b-12d3-a456-426614174000",
+        "456e4567-e89b-12d3-a456-426614174000"
+    ]
+}
+```
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "group": {
+        // Same structure as create group response
+    }
+}
+```
+
+## Delete Group
+Delete a group. Only the creator of the group can delete it.
+
+Endpoint: DELETE /api/groups/{groupId}
+Authorization: Bearer {token}
+
+Request:
+- Method: DELETE
+- URL Parameter: groupId (UUID)
+- Headers:
+  ```
+  Authorization: Bearer {jwt_token}
+  ```
+- Body: None required
+
+Example Request:
+```http
+DELETE /api/groups/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9...
+```
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "message": "Group deleted successfully"
+}
+```
+
+Error Responses:
+
+403 Forbidden:
+```json
+{
+    "status": "error",
+    "message": "Only the group creator can delete the group"
+}
+```
+
+404 Not Found:
+```json
+{
+    "status": "error",
+    "message": "Group not found with id: {groupId}"
+}
+```
+
+500 Internal Server Error:
+```json
+{
+    "status": "error",
+    "message": "Internal server error"
+}
+```
+
+Notes:
+- The group ID must be a valid UUID
+- Only the user who created the group can delete it
+- Deleting a group will also remove all group-project-user associations
+- This operation cannot be undone
+
+## Get Single Group
+Get details of a specific group.
+
+Endpoint: GET /api/groups/{groupId}
+Authorization: Bearer {token}
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "group": {
+        // Same structure 
+    }
+}
+```
+
+## Get Project Groups
+Get all groups in a project.
+
+Endpoint: GET /api/groups/project/{projectId}
+Authorization: Bearer {token}
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "groups": [
+        // Array of group objects same as get my groups
+    ]
+}
+```
+
+## Get My Groups
+Get all groups where the authenticated user is a member.
+
+Endpoint: GET /api/groups/my-groups
+Authorization: Bearer {token}
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "totalGroups": 2,
+    "totalMembers": 5,
+    "groups": [
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "name": "Structural Team A",
+            "projectCode": "PROJ-123",
+            "projectName": "Construction Project A",
+            "createdById": "789e4567-e89b-12d3-a456-426614174000",
+            "createdByUsername": "jane_smith",
+            "createdAt": "2024-01-24T14:30:00Z",
+            "totalMembers": 3,
+            "members": [
+                {
+                    "id": "123e4567-e89b-12d3-a456-426614174000",
+                    "username": "john_doe",
+                    "email": "john@example.com",
+                    "job": "Structural Engineer"
+                },
+                {
+                    "id": "789e4567-e89b-12d3-a456-426614174000",
+                    "username": "jane_smith",
+                    "email": "jane@example.com",
+                    "job": "Project Manager"
+                }
+            ]
+        }
+    ]
+}
+```
+
+## Add Group Members
+Add new members to an existing group. Only the creator of the group can add members.
+
+Endpoint: POST /api/groups/{groupId}/members
+Content-Type: application/json
+Authorization: Bearer {token}
+
+Request Body:
+```json
+{
+    "memberUsernames": [
+        "john_doe",
+        "jane_smith",
+        "bob_builder"
+    ]
+}
+```
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "message": "Successfully added 3 new members to the group"
+}
+```
+
+Error Responses:
+
+400 Bad Request:
+```json
+{
+    "status": "error",
+    "message": "The following users are not members of the project: john_doe, jane_smith"
+}
+```
+OR
+```json
+{
+    "status": "error",
+    "message": "All specified users are already members of the group"
+}
+```
+
+403 Forbidden:
+```json
+{
+    "status": "error",
+    "message": "Only the group creator can add members"
+}
+```
+
+404 Not Found:
+```json
+{
+    "status": "error",
+    "message": "Group not found with id: {groupId}"
+}
+```
+OR
+```json
+{
+    "status": "error",
+    "message": "Users not found: john_doe, jane_smith"
+}
+```
+
+Notes:
+- The group ID must be a valid UUID
+- Only the creator of the group can add members
+- All new members must be members of the project
+- Duplicate members are automatically filtered out
+- The response message includes the number of new members actually added
+
+## Error Responses
+
+### 400 Bad Request
+```json
+{
+    "status": "error",
+    "message": "Error message details"
+}
+```
+
+Example error messages:
+- "The following users are not members of the project: john_doe, jane_smith"
+- "Group name must be between 3 and 50 characters"
+
+### 401 Unauthorized
+```json
+{
+    "status": "error",
+    "message": "User not authenticated"
+}
+```
+
+### 404 Not Found
+```json
+{
+    "status": "error",
+    "message": "Error message details"
+}
+```
+
+Example error messages:
+- "Project not found with code: PROJ-123"
+- "Users not found: john_doe, jane_smith"
+
+### 500 Internal Server Error
+```json
+{
+    "status": "error",
+    "message": "Internal server error"
+}
+```
+
+## Notes
+1. Groups are project-specific - they can only contain members from the same project
+2. A user can be a member of multiple groups within the same project
+3. Only project admins or the group creator can modify or delete a group
+4. All members of a group must have access to the project
+5. Group names must be unique within a project
+6. When a user is removed from a project, they are automatically removed from all groups in that project
+7. When creating a group, all specified usernames must belong to users who are members of the project 

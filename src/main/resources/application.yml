@@ -1,0 +1,26 @@
+server:
+  port: 9090
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  application:
+    name: Contraco Manager
+  security:
+    filter:
+      order: 10
+
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:your-256-bit-secret}
+      expiration: 86400000 # 24 hours in milliseconds
+  encryption:
+    key: ${ENCRYPTION_KEY:your-encryption-key}
+
+google:
+  application-credentials: ${GOOGLE_APPLICATION_CREDENTIALS:classpath:contracomanager-32c1662e9647.json}
+  drive:
+    application-name: Contraco Manager 

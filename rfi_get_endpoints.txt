@@ -1,0 +1,124 @@
+# RFI GET Endpoints Documentation
+
+## Get Single RFI
+GET `/api/rfis/{rfiId}`
+Authorization: Bearer {jwt_token}
+
+### Success Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfi": {
+    "id": "UUID",
+    "title": "string",
+    "description": "string",
+    "status": "PENDING | RESOLVED",
+    "priority": "LOW | MEDIUM | HIGH",
+    "projectCode": "string",
+    "dueDate": "string (ISO date)",
+    "createdAt": "string (ISO datetime)",
+    "createdBy": {
+      "id": "UUID",
+      "username": "string",
+      "email": "string",
+      "job": "string"
+    },
+    "resolvedBy": {
+      "id": "UUID",
+      "username": "string",
+      "email": "string",
+      "job": "string"
+    },
+    "assignedType": "USER | GROUP",
+    "assignedTo": "string",
+    "replies": [
+      {
+        "id": "UUID",
+        "content": "string",
+        "createdAt": "string (ISO datetime)",
+        "createdBy": {
+          "id": "UUID",
+          "username": "string",
+          "email": "string",
+          "job": "string"
+        }
+      }
+    ]
+  }
+}
+```
+
+## Get Project RFIs
+GET `/api/projects/{projectCode}/rfis?page=0&size=10&status=PENDING`
+Authorization: Bearer {jwt_token}
+
+### Success Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfis": {
+    "content": [
+      // Array of RFI objects as shown above
+    ],
+    "totalElements": 50,
+    "totalPages": 5,
+    "size": 10,
+    "number": 0
+  }
+}
+```
+
+## Get Assigned RFIs
+GET `/api/rfis/assigned?page=0&size=10`
+Authorization: Bearer {jwt_token}
+
+Returns RFIs assigned to the authenticated user directly or through group membership.
+Response format same as Get Project RFIs.
+
+## Get Created RFIs
+GET `/api/rfis/created?page=0&size=10`
+Authorization: Bearer {jwt_token}
+
+Returns RFIs created by the authenticated user.
+Response format same as Get Project RFIs.
+
+## Get Overdue RFIs
+GET `/api/rfis/overdue`
+Authorization: Bearer {jwt_token}
+
+Returns RFIs past their due date.
+Response format same as Get Project RFIs.
+
+## Notes
+1. All GET endpoints require JWT token authentication
+2. All dates are in ISO format
+3. Pagination is available for endpoints that return lists
+4. The `resolvedBy` field will be null for unresolved RFIs
+5. Status values: PENDING, RESOLVED
+6. Priority values: LOW, MEDIUM, HIGH
+
+## Error Responses
+
+### Not Found (404)
+```json
+{
+  "status": "error",
+  "message": "Resource not found message"
+}
+```
+
+### Forbidden (403)
+```json
+{
+  "status": "error",
+  "message": "Access denied message"
+}
+```
+
+### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Error message"
+}
+``` 

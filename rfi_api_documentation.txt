@@ -1,0 +1,333 @@
+# RFI API Documentation
+
+## General Notes
+1. All endpoints require Bearer JWT token authentication
+2. All timestamps are in ISO format
+3. All dates (e.g., deadlines) should be in ISO date format (YYYY-MM-DD)
+4. RFI Status Values: PENDING, RESOLVED
+5. RFI Priority Values: LOW, MEDIUM, HIGH
+
+## Endpoints
+
+### Create RFI
+POST `/api/rfis`
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+
+#### Request Body
+```json
+{
+  "title": "string (required, max 100 chars)",
+  "description": "string (required, max 1000 chars)",
+  "priority": "string (required, one of: LOW, MEDIUM, HIGH)",
+  "projectCode": "string (required)",
+  "dueDate": "ISO datetime (optional)",
+  "assignedToEmail": "string (email address, required if assignedGroupName not provided)",
+  "assignedGroupName": "string (required if assignedToEmail not provided)"
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "status": "success",
+  "message": "RFI created successfully",
+  "data": {
+    "id": "UUID",
+    "title": "string",
+    "description": "string",
+    "status": "PENDING",
+    "priority": "string",
+    "projectCode": "string",
+    "dueDate": "ISO datetime",
+    "createdAt": "ISO datetime",
+    "createdBy": {
+      "id": "UUID",
+      "email": "string",
+      "job": "string"
+    },
+    "resolvedBy": null,
+    "assignedType": "USER or GROUP",
+    "assignedTo": "email or group name",
+    "replies": []
+  }
+}
+```
+
+### Get Single RFI
+GET `/api/rfis/{rfiId}`
+Authorization: Bearer {jwt_token}
+
+#### Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfi": {
+    "id": "UUID",
+    "title": "string",
+    "description": "string",
+    "status": "PENDING",
+    "priority": "LOW|MEDIUM|HIGH",
+    "projectCode": "string",
+    "dueDate": "ISO datetime",
+    "createdAt": "ISO datetime",
+    "createdBy": {
+      "id": "UUID",
+      "email": "string",
+      "job": "string"
+    },
+    "resolvedBy": null,
+    "assignedType": "USER|GROUP",
+    "assignedTo": "email or group name",
+    "replies": []
+  }
+}
+```
+
+### Get Project RFIs
+GET `/api/projects/{projectCode}/rfis?page=0&size=10&status=OPEN`
+Authorization: Bearer {jwt_token}
+
+#### Query Parameters
+- page: Page number (default: 0)
+- size: Page size (default: 10)
+- status: Filter by status (optional)
+
+#### Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfis": {
+    "content": [
+      // Array of RFI objects (same structure as single RFI response)
+    ],
+    "pageable": {
+      "pageNumber": 0,
+      "pageSize": 10,
+      "sort": {},
+      "offset": 0,
+      "paged": true,
+      "unpaged": false
+    },
+    "totalElements": 50,
+    "totalPages": 5,
+    "last": false,
+    "size": 10,
+    "number": 0,
+    "sort": {},
+    "numberOfElements": 10,
+    "first": true,
+    "empty": false
+  }
+}
+```
+
+### Get Assigned RFIs
+GET `/api/rfis/assigned?page=0&size=10`
+Authorization: Bearer {jwt_token}
+
+Returns RFIs assigned to the current user (either directly or through group assignments).
+
+#### Query Parameters
+- page: Page number (default: 0)
+- size: Page size (default: 10)
+
+#### Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfis": {
+    // Same structure as project RFIs response
+  }
+}
+```
+
+### Get Created RFIs
+GET `/api/rfis/created?page=0&size=10`
+Authorization: Bearer {jwt_token}
+
+Returns RFIs created by the current user.
+
+#### Query Parameters
+- page: Page number (default: 0)
+- size: Page size (default: 10)
+
+#### Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfis": {
+    // Same structure as project RFIs response
+  }
+}
+```
+
+### Resolve RFI
+PUT `/api/rfis/{rfiId}/resolve`
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+
+Only the assigned user (for user assignments) or any group member (for group assignments) can resolve an RFI.
+
+#### Request Body
+```json
+{
+  "message": "string (required)"
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfi": {
+    "status": "RESOLVED",
+    "resolvedBy": {
+      "id": "UUID",
+      "email": "string",
+      "job": "string"
+    },
+    "replies": [
+      {
+        "id": "UUID",
+        "content": "string",
+        "createdAt": "ISO datetime",
+        "createdBy": {
+          "id": "UUID",
+          "email": "string",
+          "job": "string"
+        }
+      }
+    ]
+  }
+}
+```
+
+### Delete RFI
+DELETE `/api/rfis/{rfiId}`
+Authorization: Bearer {jwt_token}
+
+Only the creator of the RFI can delete it. Deletion will cascade to remove all associated replies.
+
+#### Response (200 OK)
+```json
+{
+  "status": "success",
+  "message": "RFI deleted successfully"
+}
+```
+
+### Get All RFIs
+GET `/api/rfis/all`
+Description: Returns all RFIs related to the authenticated user, including:
+- RFIs created by the user
+- RFIs directly assigned to the user
+- RFIs assigned to groups the user belongs to
+- RFIs from all projects the user has access to
+
+Authorization: Bearer {jwt_token}
+
+Query Parameters:
+- page (optional, default: 0): The page number to retrieve
+- size (optional, default: 10): The number of items per page
+
+Response (200 OK):
+{
+  "status": "success",
+  "rfis": {
+    "content": [
+      {
+        "id": "UUID",
+        "title": "string",
+        "description": "string",
+        "status": "PENDING | RESOLVED",
+        "priority": "LOW | MEDIUM | HIGH",
+        "projectCode": "string",
+        "dueDate": "ISO date string",
+        "createdAt": "ISO date string",
+        "createdBy": {
+          "id": "UUID",
+          "email": "string",
+          "job": "string"
+        },
+        "resolvedBy": null | {
+          "id": "UUID",
+          "email": "string",
+          "job": "string"
+        },
+        "assignedType": "USER | GROUP",
+        "assignedTo": "email or group name",
+        "replies": [
+          {
+            "id": "UUID",
+            "content": "string",
+            "createdAt": "ISO date string",
+            "createdBy": {
+              "id": "UUID",
+              "email": "string",
+              "job": "string"
+            }
+          }
+        ]
+      }
+    ],
+    "totalElements": "integer",
+    "totalPages": "integer",
+    "size": "integer",
+    "number": "integer"
+  }
+}
+
+Error Response (500 Internal Server Error):
+{
+  "status": "error",
+  "message": "Error message"
+}
+
+Notes:
+- Results are deduplicated (no duplicate RFIs even if they match multiple criteria)
+- Results are sorted by creation date (newest first)
+- All dates are in ISO format
+- All endpoints require JWT token authentication
+- Status values: PENDING, RESOLVED
+- Priority values: LOW, MEDIUM, HIGH
+
+## Error Responses
+
+### Bad Request (400)
+```json
+{
+  "status": "error",
+  "message": "Validation error message"
+}
+```
+
+### Not Found (404)
+```json
+{
+  "status": "error",
+  "message": "Resource not found message"
+}
+```
+
+### Forbidden (403)
+```json
+{
+  "status": "error",
+  "message": "Access denied message"
+}
+```
+
+### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Error message"
+}
+```
+
+## RFI Status Flow
+1. PENDING: Initial status when created
+2. OPEN: When assigned user/group views the RFI
+3. RESOLVED: When the assigned user/group resolves the RFI
+4. CLOSED: When the creator accepts the resolution 

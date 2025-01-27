@@ -1,0 +1,36 @@
+PROJECT USERS ENDPOINT IMPLEMENTATION
+===================================
+
+This document outlines the implementation of the endpoint to retrieve users from the same project.
+
+1. ENDPOINT OVERVIEW
+-------------------
+
+Endpoint: GET /api/users/same-project
+Purpose: Retrieve all users associated with the same project as the authenticated user
+Authentication: Required (Firebase ID Token)
+
+2. IMPLEMENTATION DETAILS
+------------------------
+
+2.1 Controller Implementation (UserController.java)
+- Endpoint mapping: @GetMapping("/same-project")
+- Authentication: Bearer token required
+- Response formats:
+  * 200 OK: List of users found
+  * 204 No Content: No users found
+  * 401 Unauthorized: Invalid token
+  * 404 Not Found: User/project not found
+  * 500 Internal Server Error: Server issues
+
+2.2 Database Service Enhancement (FirebaseDatabaseService.java)
+- Method: getProjectUsers(String projectCode)
+- Query: Firebase Realtime Database
+- Path: "users" node filtered by projectCode
+- Enhanced logging for debugging
+- User ID mapping implementation
+
+3. CODE STRUCTURE
+----------------
+
+3.1 Database Query Logic: 

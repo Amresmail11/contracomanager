@@ -1,0 +1,157 @@
+# RFI API Documentation
+
+## General Notes
+- All timestamps are in ISO-8601 format with timezone
+- All IDs are UUIDs in string format
+- RFIs can be assigned to either a user or a group, but not both
+- File attachments are supported for RFIs
+- RFIs start with status "PENDING" and can be resolved to "RESOLVED"
+- Only the assigned user can resolve an RFI assigned to them
+- For group-assigned RFIs, any member of the assigned group can resolve it
+
+## RFI Status Values
+- PENDING: Initial status when RFI is created
+- RESOLVED: Status when RFI is resolved by assignee
+
+## RFI Priority Values
+- LOW
+- MEDIUM
+- HIGH
+
+## Creating an RFI
+
+### Request Structure (Assign to User)
+```json
+{
+  "title": "string",
+  "description": "string",
+  "priority": "LOW" | "MEDIUM" | "HIGH",
+  "projectCode": "string",
+  "assignedToUsername": "string",
+  "assignedGroupName": null,
+  "deadline": "2024-01-24T19:00:00Z" // optional, can be null
+}
+```
+
+### Request Structure (Assign to Group)
+```json
+{
+  "title": "string",
+  "description": "string",
+  "priority": "LOW" | "MEDIUM" | "HIGH",
+  "projectCode": "string",
+  "assignedToUsername": null,
+  "assignedGroupName": "string",
+  "deadline": "2024-01-24T19:00:00Z" // optional, can be null
+}
+```
+
+### Validation Rules
+- title: Required, non-empty string
+- description: Required, non-empty string
+- priority: Required, must be one of: LOW, MEDIUM, HIGH
+- projectCode: Required, must be a valid project code
+- Either assignedToUsername or assignedGroupName must be provided, but not both
+- deadline: Optional, must be in the future if provided
+
+### Success Response
+```json
+{
+  "status": "success",
+  "message": "RFI created successfully",
+  "rfi": {
+    "id": "uuid-string",
+    "title": "string",
+    "description": "string",
+    "status": "PENDING",
+    "priority": "LOW" | "MEDIUM" | "HIGH",
+    "projectCode": "string",
+    "dueDate": "2024-01-24T19:00:00Z",
+    "createdAt": "2024-01-24T19:00:00Z",
+    "createdBy": {
+      "id": "uuid-string",
+      "username": "string",
+      "email": "string",
+      "job": "string"
+    },
+    "assignedType": "USER" | "GROUP",
+    "assignedToUser": {
+      "id": "uuid-string",
+      "username": "string",
+      "email": "string",
+      "job": "string"
+    },
+    "assignedToGroup": {
+      "id": "uuid-string",
+      "name": "string",
+      "members": [
+        {
+          "id": "uuid-string",
+          "username": "string",
+          "email": "string",
+          "job": "string"
+        }
+      ]
+    }
+  }
+}
+```
+
+## Resolving an RFI
+
+### Endpoint
+PUT /api/rfis/{rfiId}/resolve
+
+### Description
+Resolves an RFI by changing its status from "PENDING" to "RESOLVED". Only the assigned user (for user assignments) or any member of the assigned group (for group assignments) can resolve the RFI.
+
+### Path Parameters
+- rfiId: UUID of the RFI to resolve
+
+### Success Response
+```json
+{
+  "status": "success",
+  "message": "RFI resolved successfully"
+}
+```
+
+### Error Responses
+```json
+{
+  "status": "error",
+  "message": "Only the assigned user can resolve this RFI"
+}
+```
+```json
+{
+  "status": "error",
+  "message": "Only members of the assigned group can resolve this RFI"
+}
+```
+```json
+{
+  "status": "error",
+  "message": "User does not have access to this project"
+}
+```
+
+## Error Responses (General)
+```json
+{
+  "status": "error",
+  "message": "Authentication required"
+}
+```
+```json
+{
+  "status": "error",
+  "message": "Resource not found"
+}
+```
+```json
+{
+  "status": "error",
+  "message": "Internal server error"
+}
+``` 

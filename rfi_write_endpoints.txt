@@ -1,0 +1,130 @@
+# RFI Write Operations Documentation
+
+## Create RFI
+POST `/api/rfis`
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+
+### Request Body
+```json
+{
+  "title": "string (required)",
+  "description": "string (required)",
+  "priority": "LOW | MEDIUM | HIGH (required)",
+  "projectCode": "string (required)",
+  "deadline": "string (ISO date, optional)",
+  "assignedToUsername": "string (required if assignedGroupName not provided)",
+  "assignedGroupName": "string (required if assignedToUsername not provided)"
+}
+```
+
+### Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfi": {
+    "id": "UUID",
+    "title": "string",
+    "description": "string",
+    "status": "OPEN | PENDING | RESOLVED | CLOSED",
+    "priority": "LOW | MEDIUM | HIGH",
+    "projectCode": "string",
+    "dueDate": "string (ISO date)",
+    "createdAt": "string (ISO datetime)",
+    "createdBy": {
+      "id": "UUID",
+      "username": "string",
+      "email": "string",
+      "job": "string"
+    },
+    "assignedType": "USER | GROUP",
+    "assignedTo": "string (username or group name)",
+    "replies": []
+  }
+}
+```
+
+## Resolve RFI
+POST `/api/rfis/{rfiId}/resolve`
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+
+Only the assigned user (for user assignments) or any group member (for group assignments) can resolve an RFI.
+
+### Request Body
+```json
+{
+  "message": "string (required, resolution message)"
+}
+```
+
+### Response (200 OK)
+```json
+{
+  "status": "success",
+  "rfi": {
+    // Full RFI object with status updated to RESOLVED and new reply added
+  }
+}
+```
+
+## Delete RFI
+DELETE `/api/rfis/{rfiId}`
+Authorization: Bearer {jwt_token}
+
+Only the creator of the RFI can delete it. Deletion will cascade to remove all associated replies.
+
+### Response (200 OK)
+```json
+{
+  "status": "success",
+  "message": "RFI deleted successfully"
+}
+```
+
+## Error Responses
+
+### Bad Request (400)
+```json
+{
+  "status": "error",
+  "message": "Validation error message",
+  "errors": {
+    "fieldName": "Field-specific error message"
+  }
+}
+```
+
+### Not Found (404)
+```json
+{
+  "status": "error",
+  "message": "RFI not found"
+}
+```
+
+### Forbidden (403)
+```json
+{
+  "status": "error",
+  "message": "You do not have permission to perform this action"
+}
+```
+
+### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Error message"
+}
+```
+
+## Notes
+1. All endpoints require authentication via JWT token
+2. All dates should be in ISO format
+   - All timestamps are returned in ISO format with timezone (YYYY-MM-DDTHH:mm:ss.SSSZ)
+4. RFI Status Flow:
+   - OPEN: Initial status when created
+   - PENDING: When assigned user/group views the RFI
+   - RESOLVED: When the assigned user/group resolves the RFI
+   - CLOSED: When the creator accepts the resolution 

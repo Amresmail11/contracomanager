@@ -1,0 +1,358 @@
+# Authentication API Documentation
+
+## User Registration
+Register a new user account.
+
+Endpoint: POST /api/auth/register
+Content-Type: application/json
+
+Request Body:
+```json
+{
+    "email": "user@example.com",
+    "password": "securepassword123",
+    "username": "johndoe",
+    "job": "Project Manager"
+}
+```
+
+Response (Success - 200 OK):
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "email": "user@example.com",
+    "username": "johndoe",
+    "role": "USER"
+}
+```
+
+Response (Error - 400 Bad Request):
+```json
+{
+    "status": "error",
+    "message": "Email already exists"
+}
+```
+
+## Client Registration
+Register a new client account with project details.
+
+Endpoint: POST /api/auth/register/client
+Content-Type: application/json
+
+Request Body:
+```json
+{
+    "email": "client@example.com",
+    "password": "securepassword123",
+    "username": "clientuser",
+    "job": "Project Owner",
+    "projectName": "New Construction Project",
+    "projectCode": "PROJ-123"
+}
+```
+
+Response (Success - 200 OK):
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "email": "client@example.com",
+    "username": "clientuser",
+    "role": "USER"
+}
+```
+
+## Login
+Login with email and password.
+
+Endpoint: POST /api/auth/login
+Content-Type: application/json
+
+Request Body:
+```json
+{
+    "email": "user@example.com",
+    "password": "securepassword123"
+}
+```
+
+Response (Success - 200 OK):
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "email": "user@example.com",
+    "username": "johndoe",
+    "role": "USER"
+}
+```
+
+Response (Error - 401 Unauthorized):
+```json
+{
+    "status": "error",
+    "message": "Invalid email or password"
+}
+```
+
+## Token Validation
+Validate a JWT token.
+
+Endpoint: POST /api/auth/validate
+Headers:
+- Authorization: Bearer {token}
+
+Response (Success - 200 OK):
+```json
+true
+```
+
+Response (Error - 401 Unauthorized):
+```json
+false
+```
+
+## Token Refresh
+Get a new JWT token using an existing valid token.
+
+Endpoint: POST /api/auth/refresh
+Headers:
+- Authorization: Bearer {token}
+
+Response (Success - 200 OK):
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "email": "user@example.com",
+    "username": "johndoe",
+    "role": "USER"
+}
+```
+
+## Check Email Availability
+Check if an email is available for registration.
+
+Endpoint: GET /api/auth/check-email/{email}
+
+Response:
+```json
+true  // email is available
+false // email is taken
+```
+
+## Check Username Availability
+Check if a username is available for registration.
+
+Endpoint: GET /api/auth/check-username/{username}
+
+Response:
+```json
+true  // username is available
+false // username is taken
+```
+
+## Notes:
+1. All timestamps are in ISO 8601 format with timezone (e.g., "2024-03-15T14:30:00Z")
+2. All IDs are UUIDs in string format
+3. The JWT token should be included in subsequent requests in the Authorization header:
+   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+4. Password requirements:
+   - Minimum 8 characters
+   - At least one uppercase letter
+   - At least one lowercase letter
+   - At least one number
+5. Username requirements:
+   - 3-30 characters
+   - Alphanumeric characters and underscores only
+   - Must start with a letter
+   - Case insensitive (stored in lowercase)
+
+# User Profile API
+
+GET /api/users/profile
+Retrieves the profile information of the authenticated user.
+
+Request Headers:
+- Authorization: Bearer your_jwt_token
+
+Success Response (200 OK):
+```json
+{
+    "status": "success",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "email": "user@example.com",
+    "username": "john_doe",
+    "role": "USER",
+    "job": "Software Engineer",
+    "currentProjectId": "123e4567-e89b-12d3-a456-426614174000"
+}
+```
+
+Error Response (401 Unauthorized):
+```json
+{
+    "status": "error",
+    "message": "User not authenticated"
+}
+```
+
+Error Response (500 Internal Server Error):
+```json
+{
+    "status": "error",
+    "message": "Error retrieving user details"
+}
+```
+
+Notes:
+- A valid JWT token must be included in the Authorization header
+- All timestamps are in ISO-8601 format with timezone
+- All IDs are UUIDs in string format
+
+# Project API Documentation
+
+## Create Project
+Create a new project.
+
+Endpoint: POST /api/projects/create
+Content-Type: application/json
+Authorization: Bearer {token}
+
+Request Body:
+```json
+{
+    "name": "New Construction Project",
+    "dueDate": "2024-12-31T23:59:59Z",     // Optional: ISO-8601 date-time format
+    "projectOwner": "John Smith",           // Optional: Project owner's name
+    "address": "123 Main St, City, 12345"   // Optional: Project location address
+}
+```
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "project": {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "New Construction Project",
+        "code": "PROJ-123",
+        "createdBy": {
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "username": "johndoe"
+        },
+        "dueDate": "2024-12-31T23:59:59Z",         // Empty string if not provided
+        "projectOwner": "John Smith",               // Empty string if not provided
+        "address": "123 Main St, City, 12345"       // Empty string if not provided
+    }
+}
+```
+
+Response (Error - 400 Bad Request):
+```json
+{
+    "status": "error",
+    "message": "Project name is required"
+}
+```
+
+Response (Error - 500 Internal Server Error):
+```json
+{
+    "status": "error",
+    "message": "Error message details"
+}
+```
+
+## Get Project Users
+Get all users in a project.
+
+Endpoint: GET /api/users/same-project/{projectCode}
+Authorization: Bearer {token}
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "users": [
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "username": "johndoe",
+            "email": "john@example.com",
+            "role": "USER",
+            "job": "Project Manager"
+        }
+    ]
+}
+```
+
+Response (Error - 403 Forbidden):
+```json
+{
+    "error": "Access denied to this project"
+}
+```
+
+Response (Error - 404 Not Found):
+```json
+{
+    "error": "Project not found"
+}
+```
+
+## Notes:
+1. All endpoints require authentication via JWT token in the Authorization header
+2. Project codes are automatically generated in the format "PROJ-XXX" where XXX is a unique number
+3. When a project is created:
+   - The creator is automatically added as an admin
+   - A unique project code is generated
+   - Creation timestamp is automatically set
+4. Access Control:
+   - Only users with ADMIN role can create projects
+   - Users must be members or admins of a project to view its details
+   - Project admins have additional privileges for managing the project
+5. All timestamps are in ISO 8601 format with timezone
+6. All IDs are UUIDs in string format
+
+## Get Current User's Projects
+Get all projects where the authenticated user is either an admin or a member.
+
+Endpoint: GET /api/projects/my-projects
+Authorization: Bearer {token}
+
+Response (Success - 200 OK):
+```json
+{
+    "status": "success",
+    "projects": [
+        {
+            "name": "Construction Project A",
+            "code": "PROJ-123",
+            "dueDate": "2024-12-31T23:59:59Z",         // Empty string if not set
+            "projectOwner": "John Smith",               // Empty string if not set
+            "address": "123 Main St, City, 12345"       // Empty string if not set
+        },
+        {
+            "name": "Construction Project B",
+            "code": "PROJ-124",
+            "dueDate": "",                              // Empty string if not set
+            "projectOwner": "",                         // Empty string if not set
+            "address": ""                               // Empty string if not set
+        }
+    ]
+}
+```
+
+Response (Error - 401 Unauthorized):
+```json
+{
+    "status": "error",
+    "message": "User not authenticated"
+}
+```
+
+Response (Error - 500 Internal Server Error):
+```json
+{
+    "status": "error",
+    "message": "Error fetching user projects"
+}
+```
